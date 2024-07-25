@@ -1,0 +1,11 @@
+services: 
+  bumblebee-build:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - USER=${USER}
+    volumes:
+      - ./:/bumblebee
+    container_name: bumblebee-build
+    # Open and build the app
+    command: go build -o bin/bumblebee main.go
