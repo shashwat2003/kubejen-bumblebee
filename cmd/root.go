@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Shashwat <shashwat13.8@gmail.com>
 */
 package cmd
 

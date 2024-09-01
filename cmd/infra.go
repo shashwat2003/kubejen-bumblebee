@@ -4,6 +4,7 @@ Copyright © 2024 Shashwat <shashwat13.8@gmail.com>
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"kubejen/bumblebee/utils"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/manifoldco/promptui"
@@ -69,7 +71,7 @@ func callInfra(cmd *cobra.Command, args []string) {
 
 	config, config_file := utils.RetrieveOrGenerateConfig("infra")
 	if config.Infra.Path == "" {
-		promptUser(config, config_file)
+		promptUser(&config, config_file)
 	}
 
 	infra_app := path.Join(config.Infra.Path, args[0], environment)
@@ -85,7 +87,7 @@ func callInfra(cmd *cobra.Command, args []string) {
 	}
 }
 
-func promptUser(config utils.Config, config_file string) {
+func promptUser(config *utils.Config, config_file string) {
 
 	// create config
 	validate := func(input string) error {
@@ -141,6 +143,38 @@ func runAllCompose(infra_app string, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// read the priority config
+	fmt.Printf("Checking for priority config(%s)...\n", utils.INFRA_PRIORITY_FILE)
+	priority_config := path.Join(infra_app, utils.INFRA_PRIORITY_FILE)
+	priority := map[string]int{}
+	if utils.FileExists((priority_config)) {
+		fmt.Println("Priority config found!")
+		fh, _ := os.OpenFile(priority_config, os.O_RDONLY, 0777)
+		defer fh.Close()
+		sc := bufio.NewScanner(fh)
+		sc.Split(bufio.ScanLines)
+		i := 999 // random high value to set the highest priority
+		for sc.Scan() {
+			data := sc.Text()
+			priority[data] = i
+			i -= 1
+		}
+	}
+
+	// sort the entries slice according to priority
+	sort.Slice(entries, func(i, j int) bool {
+		p1, ok := priority[strings.ReplaceAll(entries[i].Name(), "-compose.yml", "")]
+		if !ok {
+			p1 = 0
+		}
+		p2, ok := priority[strings.ReplaceAll(entries[j].Name(), "-compose.yml", "")]
+		if !ok {
+			p2 = 0
+		}
+		return p1 > p2
+	})
+
 	for _, e := range entries {
 		if e.IsDir() {
 			// if it is a directory then check for postgres/postgres-compose.yml
@@ -154,7 +188,6 @@ func runAllCompose(infra_app string, args []string) {
 				runComposeWithArgs(path.Join(infra_app, e.Name()), args)
 			}
 		}
-		fmt.Println(e.Name())
 	}
 }
 
@@ -164,6 +197,7 @@ func isCompose(name string) bool {
 }
 
 func runComposeWithArgs(compose_file string, args []string) {
+	fmt.Println("\n----------------------------------------------------------------------")
 	fmt.Printf("Running docker file -> %s\n", compose_file)
 	// static check for up command
 	if args[0] == "up" {
@@ -171,4 +205,5 @@ func runComposeWithArgs(compose_file string, args []string) {
 	}
 	command := fmt.Sprintf("docker compose -f %s %s", compose_file, strings.Join(args, " "))
 	utils.RunInShell(command)
+	fmt.Printf("----------------------------------------------------------------------\n")
 }

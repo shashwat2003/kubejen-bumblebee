@@ -1,16 +1,19 @@
-BUMBLE BEE BOT FOR KUBEJEN
-(Made in 5 Hrs)
 
-FOR LINUX: \
-Build it with:
+# BumbleBee 🐝
 
-`./install.sh`
+Bumblebee is a helper bot for Kubejen. It contains various commands which helps in automation of various tasks@kubejen.
 
-If you are mac os user, just use
 
-`./bin/macos/bumblebee`
 
-or compile it yourself:
-- `brew install golang` (install golang)
-- `go mod download && go mod verify`
-- `go build -o bin/macos/bumblebee main.go`
+## Authors
+
+- [@Shashwat](https://www.github.com/shashwat2003)
+
+
+## Installation
+
+Install the bot with
+
+```bash
+  curl -L https://github.com/shashwat2003/kubejen-bumblebee/raw/main/install.sh | bash
+```

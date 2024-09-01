@@ -45,7 +45,7 @@ func RetrieveOrGenerateConfig(repo string) (Config, string) {
 	return config, config_file
 }
 
-func SaveConfig(config Config, config_file string) {
+func SaveConfig(config *Config, config_file string) {
 	file, err := yaml.Marshal(&config)
 	if err != nil {
 		panic(err)
