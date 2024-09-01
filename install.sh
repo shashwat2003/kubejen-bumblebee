@@ -97,7 +97,7 @@ then
     docker rm $CONTAINER_NAME 1>/dev/null
 fi
 
-docker run -v ./:/bumblebee --name bumblebee-build -e GOOS=$(go env GOHOSTOS) -e GOARCH=$(go env GOHOSTARCH) $(docker build -q $BUMBLEBEE_ROOT)
+docker run -v $BUMBLEBEE_ROOT:/bumblebee --name bumblebee-build -e GOOS=$(go env GOHOSTOS) -e GOARCH=$(go env GOHOSTARCH) $(docker build -q $BUMBLEBEE_ROOT)
 
 { echo
     colorize 5 "Build Success.."
