@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -174,6 +175,11 @@ func runAllCompose(infra_app string, args []string) {
 		}
 		return p1 > p2
 	})
+
+	// static check for down command to reverse priority
+	if args[0] == "down" {
+		slices.Reverse(entries)
+	}
 
 	for _, e := range entries {
 		if e.IsDir() {
